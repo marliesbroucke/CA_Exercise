@@ -65,7 +65,7 @@ module control_unit(
             mem_read  = 1'b0;
             mem_write = 1'b0;
             branch    = 1'b1;
-            alu_op    = R_TYPE_OPCODE;
+            alu_op    = SUB_OPCODE;
             jump      = 1'b0;
          end
 
