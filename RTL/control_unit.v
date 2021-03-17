@@ -46,14 +46,14 @@ module control_unit(
          end
 
          ADDI:begin
-            reg_dst   = 1'b1;
-            alu_src   = 1'b0;
+            reg_dst   = 1'b0;
+            alu_src   = 1'b1;
             mem_2_reg = 1'b0;
             reg_write = 1'b1;
             mem_read  = 1'b0;
             mem_write = 1'b0;
             branch    = 1'b0;
-            alu_op    = R_TYPE_OPCODE;
+            alu_op    = ADD_OPCODE; //also works with R_TYPE_OPCODE but this one is more correct (see source http://fourier.eng.hmc.edu/e85_old/lectures/processor/node5.html)
             jump      = 1'b0;
          end
 
@@ -65,15 +65,15 @@ module control_unit(
             mem_read  = 1'b0;
             mem_write = 1'b0;
             branch    = 1'b1;
-            alu_op    = R_TYPE_OPCODE;
+            alu_op    = SUB_OPCODE; //also works with R_TYPE_OPCODE but this one is more correct (see source http://fourier.eng.hmc.edu/e85_old/lectures/processor/node5.html)
             jump      = 1'b0;
          end
 
          JUMP:begin 
-            reg_dst   = 1'b1;
-            alu_src   = 1'b0;
-            mem_2_reg = 1'b0;
-            reg_write = 1'b1;
+            reg_dst   = 1'bx;
+            alu_src   = 1'bx;
+            mem_2_reg = 1'bx;
+            reg_write = 1'b0;
             mem_read  = 1'b0;
             mem_write = 1'b0;
             branch    = 1'b0;
@@ -89,7 +89,7 @@ module control_unit(
             mem_read  = 1'b1;
             mem_write = 1'b0;
             branch    = 1'b0;
-            alu_op    = R_TYPE_OPCODE;
+            alu_op    = ADD_OPCODE; //also works with R_TYPE_OPCODE but this one is more correct (see source http://fourier.eng.hmc.edu/e85_old/lectures/processor/node5.html)
             jump      = 1'b0;
          end
 
@@ -101,7 +101,7 @@ module control_unit(
             mem_read  = 1'b0;
             mem_write = 1'b1;
             branch    = 1'b0;
-            alu_op    = R_TYPE_OPCODE;
+            alu_op    = ADD_OPCODE; //also works with R_TYPE_OPCODE but this one is more correct (see source http://fourier.eng.hmc.edu/e85_old/lectures/processor/node5.html)
             jump      = 1'b0;
          end
     
