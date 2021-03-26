@@ -58,9 +58,9 @@ module control_unit(
          end
 
          BRANCH_EQ:begin
-            reg_dst   = 1'bX;
+            reg_dst   = 1'bX; // can also be 0 not sure
             alu_src   = 1'b0;
-            mem_2_reg = 1'bX;
+            mem_2_reg = 1'bX; // can also be 0 not sure
             reg_write = 1'b0;
             mem_read  = 1'b0;
             mem_write = 1'b0;
