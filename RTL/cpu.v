@@ -53,7 +53,7 @@ wire [       3:0] alu_control;
 wire              reg_dst,reg_dst_EX,branch,mem_read,mem_read_EX,mem_read_MEM,mem_2_reg,mem_2_reg_EX,mem_2_reg_MEM,mem_2_reg_WB,
                   mem_write,mem_write_EX,mem_write_MEM,alu_src,alu_src_EX, reg_write, reg_write_EX, reg_write_MEM, reg_write_WB, jump;
 wire [       4:0] regfile_waddr, regfile_waddr_MEM, regfile_waddr_WB;
-wire [      31:0] regfile_wdata, dram_data,dram_data_WB,alu_out_MEM,alu_out_WB alu_out,
+wire [      31:0] regfile_wdata, dram_data,dram_data_WB,alu_out_MEM,alu_out_WB, alu_out,
                   regfile_data_1, regfile_data_1_EX,regfile_data_2, regfile_data_2_EX, regfile_data_2_MEM,
                   alu_operand_2, immediate_extended_EX, immediate_extended_ID, immediate_extended_MEM;
 
@@ -425,7 +425,7 @@ reg_arstn_en #(.DATA_W(32)) updated_add_ext_2_pipe_ID_EX(
       .dout  (addr_ext_2_EX) 
    );
 
-reg_arstn_en #(.DATA_W(32)) updated_memread_pipe_EX_MEM(
+reg_arstn_en #(.DATA_W(32)) updated_add_ext_2_pipe_EX_MEM(
       .clk   (clk       ),
       .arst_n(arst_n    ),
       .din   (addr_ext_2_EX),
@@ -572,8 +572,6 @@ reg_arstn_en #(.DATA_W(4)) updated_reg_write_pipe_MEM_WB(
       .en    (enable    ),
       .dout  (reg_write_WB) //regfiledatamux
    );
-
-
 
 endmodule
 
