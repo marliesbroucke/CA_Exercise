@@ -67,11 +67,11 @@ pc #(
 ) program_counter (
    .clk       (clk       ),
    .arst_n    (arst_n    ),
-   .branch_pc (branch_pc ),
-   .jump_pc   (jump_pc   ),
-   .zero_flag (zero_flag ),
-   .branch    (branch    ),
-   .jump      (jump      ),
+   .branch_pc (branch_pc_MEM ),
+   .jump_pc   (jump_pc_MEM   ),
+   .zero_flag (zero_flag_MEM ),
+   .branch    (branch_MEM    ),
+   .jump      (jump_MEM      ),
    .current_pc(current_pc),
    .enable    (enable    ),
    .updated_pc(updated_pc)
@@ -156,7 +156,7 @@ alu#(
    .alu_in_1 (alu_operand_2 ),
    .alu_ctrl (alu_control   ),
    .alu_out  (alu_out       ),
-   .shft_amnt(instruction[10:6]),
+   .shft_amnt(instruction_EX[10:6]),
    .zero_flag(zero_flag     ),
    .overflow (              )
 );
@@ -171,10 +171,10 @@ sram #(
    .ren      (mem_read_MEM      ),
    .wdata    (regfile_data_2_MEM ),
    .rdata    (dram_data     ),   
-   .addr_ext (addr_ext_2_MEM    ),
-   .wen_ext  (wen_ext_2_MEM     ),
-   .ren_ext  (ren_ext_2_MEM     ),
-   .wdata_ext(wdata_ext_2_MEM   ),
+   .addr_ext (addr_ext_2    ),
+   .wen_ext  (wen_ext_2     ),
+   .ren_ext  (ren_ext_2     ),
+   .wdata_ext(wdata_ext_2   ),
    .rdata_ext(rdata_ext_2   )
 );
 
@@ -194,9 +194,9 @@ mux_2 #(
 branch_unit#(
    .DATA_W(32)
 )branch_unit(
-   .updated_pc   (updated_pc_MEM        ),
-   .instruction  (instruction_MEM      ),
-   .branch_offset(immediate_extended_MEM),
+   .updated_pc   (updated_pc_EX        ),
+   .instruction  (instruction_EX      ),
+   .branch_offset(immediate_extended_EX),
    .branch_pc    (branch_pc         ),
    .jump_pc      (jump_pc         )
 );
@@ -348,7 +348,7 @@ reg_arstn_en #(.DATA_W(2)) updated_alu_op_pipe_ID_EX(
    );
 
 //reg_dst
-reg_arstn_en #(.DATA_W(4)) updated_reg_dst_pipe_ID_EX(
+reg_arstn_en #(.DATA_W(1)) updated_reg_dst_pipe_ID_EX(
       .clk   (clk       ),
       .arst_n(arst_n    ),
       .din   (reg_dst),
@@ -375,7 +375,7 @@ reg_arstn_en #(.DATA_W(32)) updated_alu_out_pipe_MEM_WB(
    );
 
 //memwrite
-reg_arstn_en #(.DATA_W(4)) updated_memwrite_pipe_ID_EX(
+reg_arstn_en #(.DATA_W(1)) updated_memwrite_pipe_ID_EX(
       .clk   (clk       ),
       .arst_n(arst_n    ),
       .din   (mem_write),
@@ -383,7 +383,7 @@ reg_arstn_en #(.DATA_W(4)) updated_memwrite_pipe_ID_EX(
       .dout  (mem_write_EX) 
    );
 
-reg_arstn_en #(.DATA_W(4)) updated_memwrite_pipe_EX_MEM(
+reg_arstn_en #(.DATA_W(1)) updated_memwrite_pipe_EX_MEM(
       .clk   (clk       ),
       .arst_n(arst_n    ),
       .din   (mem_write_EX),
@@ -392,7 +392,7 @@ reg_arstn_en #(.DATA_W(4)) updated_memwrite_pipe_EX_MEM(
    );
 
 //memwread
-reg_arstn_en #(.DATA_W(4)) updated_memread_pipe_ID_EX(
+reg_arstn_en #(.DATA_W(1)) updated_memread_pipe_ID_EX(
       .clk   (clk       ),
       .arst_n(arst_n    ),
       .din   (mem_read),
@@ -400,7 +400,7 @@ reg_arstn_en #(.DATA_W(4)) updated_memread_pipe_ID_EX(
       .dout  (mem_read_EX) 
    );
 
-reg_arstn_en #(.DATA_W(4)) updated_memread_pipe_EX_MEM(
+reg_arstn_en #(.DATA_W(1)) updated_memread_pipe_EX_MEM(
       .clk   (clk       ),
       .arst_n(arst_n    ),
       .din   (mem_read_EX),
@@ -409,100 +409,100 @@ reg_arstn_en #(.DATA_W(4)) updated_memread_pipe_EX_MEM(
    );
 
 //addr_ext_2
-reg_arstn_en #(.DATA_W(32)) updated_add_ext_2_pipe_IF_ID(
-      .clk   (clk       ),
-      .arst_n(arst_n    ),
-      .din   (addr_ext_2),
-      .en    (enable    ),
-      .dout  (addr_ext_2_ID) 
-   );
+// reg_arstn_en #(.DATA_W(32)) updated_add_ext_2_pipe_IF_ID(
+//       .clk   (clk       ),
+//       .arst_n(arst_n    ),
+//       .din   (addr_ext_2),
+//       .en    (enable    ),
+//       .dout  (addr_ext_2_ID) 
+//    );
 
-reg_arstn_en #(.DATA_W(32)) updated_add_ext_2_pipe_ID_EX(
-      .clk   (clk       ),
-      .arst_n(arst_n    ),
-      .din   (addr_ext_2_ID),
-      .en    (enable    ),
-      .dout  (addr_ext_2_EX) 
-   );
+// reg_arstn_en #(.DATA_W(32)) updated_add_ext_2_pipe_ID_EX(
+//       .clk   (clk       ),
+//       .arst_n(arst_n    ),
+//       .din   (addr_ext_2_ID),
+//       .en    (enable    ),
+//       .dout  (addr_ext_2_EX) 
+//    );
 
-reg_arstn_en #(.DATA_W(32)) updated_add_ext_2_pipe_EX_MEM(
-      .clk   (clk       ),
-      .arst_n(arst_n    ),
-      .din   (addr_ext_2_EX),
-      .en    (enable    ),
-      .dout  (addr_ext_2_MEM) //Data_memory
-   );
+// reg_arstn_en #(.DATA_W(32)) updated_add_ext_2_pipe_EX_MEM(
+//       .clk   (clk       ),
+//       .arst_n(arst_n    ),
+//       .din   (addr_ext_2_EX),
+//       .en    (enable    ),
+//       .dout  (addr_ext_2_MEM) //Data_memory
+//    );
 //wen_ext_2
-reg_arstn_en #(.DATA_W(32)) updated_wen_ext_2_pipe_IF_ID(
-      .clk   (clk       ),
-      .arst_n(arst_n    ),
-      .din   (wen_ext_2),
-      .en    (enable    ),
-      .dout  (wen_ext_2_ID) 
-   );
+// reg_arstn_en #(.DATA_W(32)) updated_wen_ext_2_pipe_IF_ID(
+//       .clk   (clk       ),
+//       .arst_n(arst_n    ),
+//       .din   (wen_ext_2),
+//       .en    (enable    ),
+//       .dout  (wen_ext_2_ID) 
+//    );
 
-reg_arstn_en #(.DATA_W(32)) updated_wen_ext_2_pipe_ID_EX(
-      .clk   (clk       ),
-      .arst_n(arst_n    ),
-      .din   (wen_ext_2_ID),
-      .en    (enable    ),
-      .dout  (wen_ext_2_EX) 
-   );
-reg_arstn_en #(.DATA_W(32)) updated_wen_ext_2_pipe_EX_MEM(
-      .clk   (clk       ),
-      .arst_n(arst_n    ),
-      .din   (wen_ext_2_EX),
-      .en    (enable    ),
-      .dout  (wen_ext_2_MEM) //Data_memory
-   );
+// reg_arstn_en #(.DATA_W(32)) updated_wen_ext_2_pipe_ID_EX(
+//       .clk   (clk       ),
+//       .arst_n(arst_n    ),
+//       .din   (wen_ext_2_ID),
+//       .en    (enable    ),
+//       .dout  (wen_ext_2_EX) 
+//    );
+// reg_arstn_en #(.DATA_W(32)) updated_wen_ext_2_pipe_EX_MEM(
+//       .clk   (clk       ),
+//       .arst_n(arst_n    ),
+//       .din   (wen_ext_2_EX),
+//       .en    (enable    ),
+//       .dout  (wen_ext_2_MEM) //Data_memory
+//    );
 
 //ren_ext_2
-reg_arstn_en #(.DATA_W(32)) updated_ren_ext_2_pipe_IF_ID(
-      .clk   (clk       ),
-      .arst_n(arst_n    ),
-      .din   (ren_ext_2),
-      .en    (enable    ),
-      .dout  (ren_ext_2_ID) 
-   );
+// reg_arstn_en #(.DATA_W(32)) updated_ren_ext_2_pipe_IF_ID(
+//       .clk   (clk       ),
+//       .arst_n(arst_n    ),
+//       .din   (ren_ext_2),
+//       .en    (enable    ),
+//       .dout  (ren_ext_2_ID) 
+//    );
 
-reg_arstn_en #(.DATA_W(32)) updated_ren_ext_2_pipe_ID_EX(
-      .clk   (clk       ),
-      .arst_n(arst_n    ),
-      .din   (ren_ext_2_ID),
-      .en    (enable    ),
-      .dout  (ren_ext_2_EX) 
-   );
-reg_arstn_en #(.DATA_W(32)) updated_ren_ext_2_pipe_EX_MEM(
-      .clk   (clk       ),
-      .arst_n(arst_n    ),
-      .din   (ren_ext_2_EX),
-      .en    (enable    ),
-      .dout  (ren_ext_2_MEM) //Data_memory
-   );
+// reg_arstn_en #(.DATA_W(32)) updated_ren_ext_2_pipe_ID_EX(
+//       .clk   (clk       ),
+//       .arst_n(arst_n    ),
+//       .din   (ren_ext_2_ID),
+//       .en    (enable    ),
+//       .dout  (ren_ext_2_EX) 
+//    );
+// reg_arstn_en #(.DATA_W(32)) updated_ren_ext_2_pipe_EX_MEM(
+//       .clk   (clk       ),
+//       .arst_n(arst_n    ),
+//       .din   (ren_ext_2_EX),
+//       .en    (enable    ),
+//       .dout  (ren_ext_2_MEM) //Data_memory
+//    );
 
 //wdata_ext_2
-reg_arstn_en #(.DATA_W(32)) updated_wdata_ext_2_pipe_IF_ID(
-      .clk   (clk       ),
-      .arst_n(arst_n    ),
-      .din   (wdata_ext_2),
-      .en    (enable    ),
-      .dout  (wdata_ext_2_ID) 
-   );
+// reg_arstn_en #(.DATA_W(32)) updated_wdata_ext_2_pipe_IF_ID(
+//       .clk   (clk       ),
+//       .arst_n(arst_n    ),
+//       .din   (wdata_ext_2),
+//       .en    (enable    ),
+//       .dout  (wdata_ext_2_ID) 
+//    );
 
-reg_arstn_en #(.DATA_W(32)) updated_wdata_ext_2_pipe_ID_EX(
-      .clk   (clk       ),
-      .arst_n(arst_n    ),
-      .din   (wdata_ext_2_ID),
-      .en    (enable    ),
-      .dout  (wdata_ext_2_EX) 
-   );
-reg_arstn_en #(.DATA_W(32)) updated_wdata_ext_2_pipe_EX_MEM(
-      .clk   (clk       ),
-      .arst_n(arst_n    ),
-      .din   (wdata_ext_2_EX),
-      .en    (enable    ),
-      .dout  (wdata_ext_2_MEM) //Data_memory
-   );
+// reg_arstn_en #(.DATA_W(32)) updated_wdata_ext_2_pipe_ID_EX(
+//       .clk   (clk       ),
+//       .arst_n(arst_n    ),
+//       .din   (wdata_ext_2_ID),
+//       .en    (enable    ),
+//       .dout  (wdata_ext_2_EX) 
+//    );
+// reg_arstn_en #(.DATA_W(32)) updated_wdata_ext_2_pipe_EX_MEM(
+//       .clk   (clk       ),
+//       .arst_n(arst_n    ),
+//       .din   (wdata_ext_2_EX),
+//       .en    (enable    ),
+//       .dout  (wdata_ext_2_MEM) //Data_memory
+//    );
 
 //dram_data
 reg_arstn_en #(.DATA_W(32)) updated_dram_data_pipe_MEM_WB(
@@ -514,17 +514,17 @@ reg_arstn_en #(.DATA_W(32)) updated_dram_data_pipe_MEM_WB(
    );
 
 
-//Rdata_ext_2
-reg_arstn_en #(.DATA_W(32)) updated_rdata_ext_2_pipe_MEM_WB(
-      .clk   (clk       ),
-      .arst_n(arst_n    ),
-      .din   (rdata_ext_2),
-      .en    (enable    ),
-      .dout  (rdata_ext_2_WB) //used as output???
-   );
+// //Rdata_ext_2
+// reg_arstn_en #(.DATA_W(32)) updated_rdata_ext_2_pipe_MEM_WB(
+//       .clk   (clk       ),
+//       .arst_n(arst_n    ),
+//       .din   (rdata_ext_2),
+//       .en    (enable    ),
+//       .dout  (rdata_ext_2_WB) //used as output???
+//    );
 
 //mem_2_reg
-reg_arstn_en #(.DATA_W(4)) updated_mem_2_reg_pipe_ID_EX(
+reg_arstn_en #(.DATA_W(1)) updated_mem_2_reg_pipe_ID_EX(
       .clk   (clk       ),
       .arst_n(arst_n    ),
       .din   (mem_2_reg),
@@ -532,7 +532,7 @@ reg_arstn_en #(.DATA_W(4)) updated_mem_2_reg_pipe_ID_EX(
       .dout  (mem_2_reg_EX) 
    );
 
-reg_arstn_en #(.DATA_W(4)) updated_mem_2_reg_pipe_EX_MEM(
+reg_arstn_en #(.DATA_W(1)) updated_mem_2_reg_pipe_EX_MEM(
       .clk   (clk       ),
       .arst_n(arst_n    ),
       .din   (mem_2_reg_EX),
@@ -540,7 +540,7 @@ reg_arstn_en #(.DATA_W(4)) updated_mem_2_reg_pipe_EX_MEM(
       .dout  (mem_2_reg_MEM) 
    );
 
-reg_arstn_en #(.DATA_W(4)) updated_mem_2_reg_pipe_MEM_WB(
+reg_arstn_en #(.DATA_W(1)) updated_mem_2_reg_pipe_MEM_WB(
       .clk   (clk       ),
       .arst_n(arst_n    ),
       .din   (mem_2_reg_MEM),
@@ -549,7 +549,7 @@ reg_arstn_en #(.DATA_W(4)) updated_mem_2_reg_pipe_MEM_WB(
    );
 
 //regwrite
-reg_arstn_en #(.DATA_W(4)) updated_reg_write_pipe_ID_EX(
+reg_arstn_en #(.DATA_W(1)) updated_reg_write_pipe_ID_EX(
       .clk   (clk       ),
       .arst_n(arst_n    ),
       .din   (reg_write),
@@ -557,7 +557,7 @@ reg_arstn_en #(.DATA_W(4)) updated_reg_write_pipe_ID_EX(
       .dout  (reg_write_EX) 
    );
 
-reg_arstn_en #(.DATA_W(4)) updated_reg_write_pipe_EX_MEM(
+reg_arstn_en #(.DATA_W(1)) updated_reg_write_pipe_EX_MEM(
       .clk   (clk       ),
       .arst_n(arst_n    ),
       .din   (reg_write_EX),
@@ -565,13 +565,81 @@ reg_arstn_en #(.DATA_W(4)) updated_reg_write_pipe_EX_MEM(
       .dout  (reg_write_MEM) 
    );
 
-reg_arstn_en #(.DATA_W(4)) updated_reg_write_pipe_MEM_WB(
+reg_arstn_en #(.DATA_W(1)) updated_reg_write_pipe_MEM_WB(
       .clk   (clk       ),
       .arst_n(arst_n    ),
       .din   (reg_write_MEM),
       .en    (enable    ),
       .dout  (reg_write_WB) //regfiledatamux
    );
+
+// branch_pc 
+wire [31:0] branch_pc_MEM
+reg_arstn_en #(.DATA_W(32)) updated_branch_pc_pipe_EX_MEM(
+      .clk   (clk       ),
+      .arst_n(arst_n    ),
+      .din   (branch_pc),
+      .en    (enable    ),
+      .dout  (branch_pc_MEM)
+   );
+
+//jump_pc
+wire [31:0] jump_pc_MEM
+reg_arstn_en #(.DATA_W(32)) updated_jump_pc_pipe_EX_MEM(
+      .clk   (clk       ),
+      .arst_n(arst_n    ),
+      .din   (jump_pc),
+      .en    (enable    ),
+      .dout  (jump_pc_MEM)
+   );
+
+//jump
+wire  jump_EX
+reg_arstn_en #(.DATA_W(1)) updated_jump_pipe_ID_EX(
+      .clk   (clk       ),
+      .arst_n(arst_n    ),
+      .din   (jump),
+      .en    (enable    ),
+      .dout  (jump_EX)
+   );
+
+wire  jump_MEM
+reg_arstn_en #(.DATA_W(1)) updated_jump_pipe_EX_MEM(
+      .clk   (clk       ),
+      .arst_n(arst_n    ),
+      .din   (jump_EX),
+      .en    (enable    ),
+      .dout  (jump_MEM)
+   );
+
+//branch
+wire  branch_EX
+reg_arstn_en #(.DATA_W(1)) updated_branch_pipe_ID_EX(
+      .clk   (clk       ),
+      .arst_n(arst_n    ),
+      .din   (branch),
+      .en    (enable    ),
+      .dout  (branch_EX)
+   );
+
+wire  branch_MEM
+reg_arstn_en #(.DATA_W(1)) updated_branch_pipe_EX_MEM(
+      .clk   (clk       ),
+      .arst_n(arst_n    ),
+      .din   (branch_EX),
+      .en    (enable    ),
+      .dout  (branch_MEM)
+   );
+
+// zero flag
+wire zero_flag_MEM
+
+reg_arstn_en #(.DATA_W(1)) updated_zero_flag_pipe_EXE_MEM(
+      .clk   (clk       ),
+      .arst_n(arst_n    ),
+      .din   (zero_flag ),
+      .en    (enable    ),
+      .dout  (zero_flag_MEM)
 
 endmodule
 
