@@ -45,13 +45,13 @@ module cpu(
 
    );
 
-wire              zero_flag;
-wire [      31:0] branch_pc,updated_pc,updated_pc_MEM,current_pc,jump_pc,
+wire              zero_flag,zero_flag_MEM;
+wire [      31:0] branch_pc,branch_pc_MEM,updated_pc,updated_pc_MEM,current_pc,updated_pc_ID,updated_pc_EX, jump_pc,jump_pc_MEM,
                   instruction,instruction_EX,instruction_ID,instruction_MEM;
 wire [       1:0] alu_op,alu_op_EX;
 wire [       3:0] alu_control;
-wire              reg_dst,reg_dst_EX,branch,mem_read,mem_read_EX,mem_read_MEM,mem_2_reg,mem_2_reg_EX,mem_2_reg_MEM,mem_2_reg_WB,
-                  mem_write,mem_write_EX,mem_write_MEM,alu_src,alu_src_EX, reg_write, reg_write_EX, reg_write_MEM, reg_write_WB, jump;
+wire              reg_dst,reg_dst_EX,branch,branch_MEM,mem_read,mem_read_EX,mem_read_MEM,mem_2_reg,mem_2_reg_EX,mem_2_reg_MEM,mem_2_reg_WB,
+                  mem_write,mem_write_EX,mem_write_MEM,alu_src,alu_src_EX, reg_write, reg_write_EX, reg_write_MEM, reg_write_WB, jump,jump_MEM;
 wire [       4:0] regfile_waddr, regfile_waddr_MEM, regfile_waddr_WB;
 wire [      31:0] regfile_wdata, dram_data,dram_data_WB,alu_out_MEM,alu_out_WB, alu_out,
                   regfile_data_1, regfile_data_1_EX,regfile_data_2, regfile_data_2_EX, regfile_data_2_MEM,
