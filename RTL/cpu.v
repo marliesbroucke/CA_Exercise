@@ -61,6 +61,8 @@ wire signed [31:0] immediate_extended;
 
 assign immediate_extended = $signed(instruction[15:0]);
 
+wire [       1:0] selection_top,selection_bot;
+wire [      31:0] forward_top, forward_bot;
 
 pc #(
    .DATA_W(32)
@@ -139,6 +141,42 @@ alu_control alu_ctrl(
    .alu_control    (alu_control     )
 );
 
+forwarding_unit#(
+      .DATA_W(32)
+)forwarding_unit(
+      .reg_write_MEM             (reg_write_MEM            ), 
+      .reg_write_WB              (reg_write_WB             ), 
+      .regfile_waddr_MEM         (regfile_waddr_MEM        ),
+      .regfile_waddr_WB          (regfile_waddr_WB         ),
+      .read_reg_1                (instruction_ID_EXE[25:21]),
+      .instruction_ID_EXE_Rt     (instruction_ID_EXE[20:16]),
+      .top_select                (forward_top              ),
+      .bot_select                (forward_bot              )
+);
+
+
+mux_forwarding#(
+      .DATA_W(32)
+) mux_forwarding_top (
+   .input_a (regfile_data_1_EX),
+   .input_b (alu_out_MEM            ),  //need to be at mem stage or at EX stage?
+   .input_c (regfile_wdata              ),
+   .select_a(selection_top        ),
+   .mux_out (forward_top             )
+);
+
+
+mux_forwarding#(
+      .DATA_W(32)
+) mux_forwarding_bot (
+   .input_a (alu_operand_2),
+   .input_b (alu_out_MEM          ),  //need to be at mem stage or at EX stage?
+   .input_c (regfile_wdata        ),
+   .select_a(selection_bot       ),
+   .mux_out (forward_bot            )
+);
+
+
 mux_2 #(
    .DATA_W(32)
 ) alu_operand_mux (
@@ -152,8 +190,8 @@ mux_2 #(
 alu#(
    .DATA_W(32)
 ) alu(
-   .alu_in_0 (regfile_data_1_EX),
-   .alu_in_1 (alu_operand_2 ),
+   .alu_in_0 (forward_top),
+   .alu_in_1 (forward_bot ),
    .alu_ctrl (alu_control   ),
    .alu_out  (alu_out       ),
    .shft_amnt(instruction_EX[10:6]),
@@ -225,6 +263,7 @@ reg_arstn_en #(.DATA_W(32)) updated_instuction_pipe_EX_MEM(
       .en    (enable    ),
       .dout  (instruction_MEM)  //used by branch unit
    );
+
 
 //current_pc_pipe
 reg_arstn_en #(.DATA_W(32)) updated_updated_pc_pipe_IF_ID(
@@ -404,6 +443,7 @@ reg_arstn_en #(.DATA_W(1)) updated_memread_pipe_EX_MEM(
       .dout  (mem_read_MEM) //Data_memory
    );
 
+
 //dram_data
 reg_arstn_en #(.DATA_W(32)) updated_dram_data_pipe_MEM_WB(
       .clk   (clk       ),
@@ -412,6 +452,7 @@ reg_arstn_en #(.DATA_W(32)) updated_dram_data_pipe_MEM_WB(
       .en    (enable    ),
       .dout  (dram_data_WB) //regfile_data_mux
    );
+
 
 //mem_2_reg
 reg_arstn_en #(.DATA_W(1)) updated_mem_2_reg_pipe_ID_EX(
@@ -464,6 +505,7 @@ reg_arstn_en #(.DATA_W(1)) updated_reg_write_pipe_MEM_WB(
    );
 
 // branch_pc 
+wire [31:0] branch_pc_MEM
 reg_arstn_en #(.DATA_W(32)) updated_branch_pc_pipe_EX_MEM(
       .clk   (clk       ),
       .arst_n(arst_n    ),
@@ -473,6 +515,7 @@ reg_arstn_en #(.DATA_W(32)) updated_branch_pc_pipe_EX_MEM(
    );
 
 //jump_pc
+wire [31:0] jump_pc_MEM
 reg_arstn_en #(.DATA_W(32)) updated_jump_pc_pipe_EX_MEM(
       .clk   (clk       ),
       .arst_n(arst_n    ),
@@ -482,7 +525,7 @@ reg_arstn_en #(.DATA_W(32)) updated_jump_pc_pipe_EX_MEM(
    );
 
 //jump
-wire  jump_EX;
+wire  jump_EX
 reg_arstn_en #(.DATA_W(1)) updated_jump_pipe_ID_EX(
       .clk   (clk       ),
       .arst_n(arst_n    ),
@@ -491,6 +534,7 @@ reg_arstn_en #(.DATA_W(1)) updated_jump_pipe_ID_EX(
       .dout  (jump_EX)
    );
 
+wire  jump_MEM
 reg_arstn_en #(.DATA_W(1)) updated_jump_pipe_EX_MEM(
       .clk   (clk       ),
       .arst_n(arst_n    ),
@@ -500,7 +544,7 @@ reg_arstn_en #(.DATA_W(1)) updated_jump_pipe_EX_MEM(
    );
 
 //branch
-wire  branch_EX;
+wire  branch_EX
 reg_arstn_en #(.DATA_W(1)) updated_branch_pipe_ID_EX(
       .clk   (clk       ),
       .arst_n(arst_n    ),
@@ -509,6 +553,7 @@ reg_arstn_en #(.DATA_W(1)) updated_branch_pipe_ID_EX(
       .dout  (branch_EX)
    );
 
+wire  branch_MEM
 reg_arstn_en #(.DATA_W(1)) updated_branch_pipe_EX_MEM(
       .clk   (clk       ),
       .arst_n(arst_n    ),
@@ -518,13 +563,14 @@ reg_arstn_en #(.DATA_W(1)) updated_branch_pipe_EX_MEM(
    );
 
 // zero flag
+wire zero_flag_MEM
+
 reg_arstn_en #(.DATA_W(1)) updated_zero_flag_pipe_EXE_MEM(
       .clk   (clk       ),
       .arst_n(arst_n    ),
       .din   (zero_flag ),
       .en    (enable    ),
       .dout  (zero_flag_MEM)
-   );
 
 endmodule
 
