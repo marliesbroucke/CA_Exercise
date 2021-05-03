@@ -11,3 +11,5 @@
 ../RTL/sram.v
 ../RTL/cpu_tb.v
 ../RTL/saed32sram_mod.v
+../RTL/forward_mux.v
+../RTL/forward_unit.v

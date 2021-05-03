@@ -47,7 +47,7 @@ module cpu(
 
 wire              zero_flag,zero_flag_MEM;
 wire [      31:0] branch_pc,branch_pc_MEM,updated_pc,updated_pc_MEM,current_pc,updated_pc_ID,updated_pc_EX, jump_pc,jump_pc_MEM,
-                  instruction,instruction_EX,instruction_ID,instruction_MEM;
+                  instruction,instruction_EX,instruction_ID,instruction_ID_EXE,instruction_MEM;
 wire [       1:0] alu_op,alu_op_EX;
 wire [       3:0] alu_control;
 wire              reg_dst,reg_dst_EX,branch,branch_MEM,mem_read,mem_read_EX,mem_read_MEM,mem_2_reg,mem_2_reg_EX,mem_2_reg_MEM,mem_2_reg_WB,
@@ -141,15 +141,15 @@ alu_control alu_ctrl(
    .alu_control    (alu_control     )
 );
 
-forwarding_unit#(
+forward_unit#(
       .DATA_W(32)
-)forwarding_unit(
+)forward_unit(
       .reg_write_MEM             (reg_write_MEM            ), 
       .reg_write_WB              (reg_write_WB             ), 
       .regfile_waddr_MEM         (regfile_waddr_MEM        ),
       .regfile_waddr_WB          (regfile_waddr_WB         ),
       .read_reg_1                (instruction_ID_EXE[25:21]),
-      .instruction_ID_EXE_Rt     (instruction_ID_EXE[20:16]),
+      .read_reg_2     (instruction_ID_EXE[20:16]),
       .top_select                (forward_top              ),
       .bot_select                (forward_bot              )
 );
@@ -158,10 +158,10 @@ forwarding_unit#(
 mux_forwarding#(
       .DATA_W(32)
 ) mux_forwarding_top (
-   .input_a (regfile_data_1_EX),
-   .input_b (alu_out_MEM            ),  //need to be at mem stage or at EX stage?
-   .input_c (regfile_wdata              ),
-   .select_a(selection_top        ),
+   .input_0 (regfile_data_1_EX),
+   .input_1 (alu_out_MEM            ),  //need to be at mem stage or at EX stage?
+   .input_2 (regfile_wdata              ),
+   .selection(selection_top        ),
    .mux_out (forward_top             )
 );
 
@@ -169,10 +169,10 @@ mux_forwarding#(
 mux_forwarding#(
       .DATA_W(32)
 ) mux_forwarding_bot (
-   .input_a (alu_operand_2),
-   .input_b (alu_out_MEM          ),  //need to be at mem stage or at EX stage?
-   .input_c (regfile_wdata        ),
-   .select_a(selection_bot       ),
+   .input_0 (alu_operand_2),
+   .input_1 (alu_out_MEM          ),  //need to be at mem stage or at EX stage?
+   .input_2 (regfile_wdata        ),
+   .selection (selection_bot       ),
    .mux_out (forward_bot            )
 );
 
@@ -505,7 +505,6 @@ reg_arstn_en #(.DATA_W(1)) updated_reg_write_pipe_MEM_WB(
    );
 
 // branch_pc 
-wire [31:0] branch_pc_MEM
 reg_arstn_en #(.DATA_W(32)) updated_branch_pc_pipe_EX_MEM(
       .clk   (clk       ),
       .arst_n(arst_n    ),
@@ -515,7 +514,6 @@ reg_arstn_en #(.DATA_W(32)) updated_branch_pc_pipe_EX_MEM(
    );
 
 //jump_pc
-wire [31:0] jump_pc_MEM
 reg_arstn_en #(.DATA_W(32)) updated_jump_pc_pipe_EX_MEM(
       .clk   (clk       ),
       .arst_n(arst_n    ),
@@ -525,7 +523,7 @@ reg_arstn_en #(.DATA_W(32)) updated_jump_pc_pipe_EX_MEM(
    );
 
 //jump
-wire  jump_EX
+wire  jump_EX;
 reg_arstn_en #(.DATA_W(1)) updated_jump_pipe_ID_EX(
       .clk   (clk       ),
       .arst_n(arst_n    ),
@@ -534,7 +532,6 @@ reg_arstn_en #(.DATA_W(1)) updated_jump_pipe_ID_EX(
       .dout  (jump_EX)
    );
 
-wire  jump_MEM
 reg_arstn_en #(.DATA_W(1)) updated_jump_pipe_EX_MEM(
       .clk   (clk       ),
       .arst_n(arst_n    ),
@@ -544,7 +541,7 @@ reg_arstn_en #(.DATA_W(1)) updated_jump_pipe_EX_MEM(
    );
 
 //branch
-wire  branch_EX
+wire  branch_EX;
 reg_arstn_en #(.DATA_W(1)) updated_branch_pipe_ID_EX(
       .clk   (clk       ),
       .arst_n(arst_n    ),
@@ -553,7 +550,6 @@ reg_arstn_en #(.DATA_W(1)) updated_branch_pipe_ID_EX(
       .dout  (branch_EX)
    );
 
-wire  branch_MEM
 reg_arstn_en #(.DATA_W(1)) updated_branch_pipe_EX_MEM(
       .clk   (clk       ),
       .arst_n(arst_n    ),
@@ -563,15 +559,13 @@ reg_arstn_en #(.DATA_W(1)) updated_branch_pipe_EX_MEM(
    );
 
 // zero flag
-wire zero_flag_MEM
-
 reg_arstn_en #(.DATA_W(1)) updated_zero_flag_pipe_EXE_MEM(
       .clk   (clk       ),
       .arst_n(arst_n    ),
       .din   (zero_flag ),
       .en    (enable    ),
       .dout  (zero_flag_MEM)
-
+  );
 endmodule
 
 

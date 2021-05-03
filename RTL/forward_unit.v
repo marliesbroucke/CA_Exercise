@@ -36,7 +36,7 @@ module forward_unit#(
    if ((reg_write_MEM == 1'b1) && (regfile_waddr_MEM == read_reg_1)) 
    
    begin
-      top_select == 2'b10
+      top_select = 2'b10;
    end
 
    if (reg_write_MEM == 1'b1 && (regfile_waddr_MEM == read_reg_2)) 
