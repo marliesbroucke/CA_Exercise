@@ -36,13 +36,13 @@ module forward_unit#(
    if ((reg_write_MEM == 1'b1) && (regfile_waddr_MEM == read_reg_1)) 
    
    begin
-      top_select = 2'b10;
+      top_select = 2'b01;
    end
 
    if (reg_write_MEM == 1'b1 && (regfile_waddr_MEM == read_reg_2)) 
 
    begin
-      bot_select = 2'b10;
+      bot_select = 2'b01;
    end  
 
 
@@ -52,14 +52,14 @@ module forward_unit#(
        && (regfile_waddr_WB == read_reg_1)) //reg adress must also match!
        
    begin 
-      top_select = 2'b01;
+      top_select = 2'b10;
    end 
 
    if (reg_write_WB == 1'b1 && !(reg_write_MEM == 1'b1 && (regfile_waddr_MEM !== read_reg_2))
        && (regfile_waddr_WB == read_reg_2)) 
       
    begin 
-      bot_select = 2'b01;
+      bot_select = 2'b10;
    end 
       
    
