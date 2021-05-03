@@ -150,8 +150,8 @@ forward_unit#(
       .regfile_waddr_WB          (regfile_waddr_WB         ),
       .read_reg_1                (instruction_EX[25:21]    ),
       .read_reg_2                (instruction_EX[20:16]    ),
-      .top_select                (forward_top              ),
-      .bot_select                (forward_bot              )
+      .top_select                (selection_top              ),
+      .bot_select                (selection_bot              )
 );
 
 
