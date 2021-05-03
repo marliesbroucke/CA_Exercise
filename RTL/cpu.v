@@ -148,8 +148,8 @@ forward_unit#(
       .reg_write_WB              (reg_write_WB             ), 
       .regfile_waddr_MEM         (regfile_waddr_MEM        ),
       .regfile_waddr_WB          (regfile_waddr_WB         ),
-      .read_reg_1                (instruction_ID_EXE[25:21]),
-      .read_reg_2     (instruction_ID_EXE[20:16]),
+      .read_reg_1                (instruction_EX[25:21]    ),
+      .read_reg_2                (instruction_EX[20:16]    ),
       .top_select                (forward_top              ),
       .bot_select                (forward_bot              )
 );
@@ -159,10 +159,10 @@ mux_forwarding#(
       .DATA_W(32)
 ) mux_forwarding_top (
    .input_0 (regfile_data_1_EX),
-   .input_1 (alu_out_MEM            ),  //need to be at mem stage or at EX stage?
-   .input_2 (regfile_wdata              ),
-   .selection(selection_top        ),
-   .mux_out (forward_top             )
+   .input_1 (regfile_wdata        ),  //need to be at mem stage or at EX stage?
+   .input_2 (alu_out_MEM          ),
+   .selection(selection_top       ),
+   .mux_out (forward_top          )
 );
 
 
@@ -170,10 +170,10 @@ mux_forwarding#(
       .DATA_W(32)
 ) mux_forwarding_bot (
    .input_0 (alu_operand_2),
-   .input_1 (alu_out_MEM          ),  //need to be at mem stage or at EX stage?
-   .input_2 (regfile_wdata        ),
-   .selection (selection_bot       ),
-   .mux_out (forward_bot            )
+   .input_1 (regfile_wdata      ),  //need to be at mem stage or at EX stage?
+   .input_2 (alu_out_MEM        ),
+   .selection(selection_bot     ),
+   .mux_out (forward_bot        )
 );
 
 
