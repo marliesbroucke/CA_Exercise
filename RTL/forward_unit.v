@@ -13,54 +13,52 @@
 module forward_unit#(
    parameter integer DATA_W     = 16
    )(
-      input  wire signed        reg_write_MEM,
-      input  wire signed        reg_write_WB, //are these needed?
-      input  wire signed [4:0]  regfile_waddr_MEM,
-      input  wire signed [4:0]  regfile_waddr_WB,
-      input  wire signed [4:0]  read_reg_1,    //these are from the inputs of regfile right?
-      input  wire signed [4:0]  read_reg_2,
-      output reg signed [1:0]  top_select,
-      output reg signed [1:0]  bot_select
+      input  wire         reg_write_MEM,
+      input  wire        reg_write_WB, //are these needed?
+      input  wire [4:0]  regfile_waddr_MEM,
+      input  wire [4:0]  regfile_waddr_WB,
+      input  wire [4:0]  read_reg_1,    //these are from the inputs of regfile right?
+      input  wire [4:0]  read_reg_2,
+      output reg [1:0]  top_select,
+      output reg [1:0]  bot_select
    );
    
    //book page 319-320
 
    always@(*) begin
-   // start with no hazard, if hazard signal will be overwritten
+// top mux signal
+      if (reg_write_MEM == 1'b1
+      && (regfile_waddr_MEM == read_reg_1)) 
+      begin 
+         top_select = 2'b10;
+      end 
+      else if (reg_write_WB == 1'b1 
+      && !(reg_write_MEM == 1'b1 && (regfile_waddr_MEM !== read_reg_1))
+      && (regfile_waddr_WB == read_reg_1)) 
+      begin 
+         top_select = 2'b01;
+      end 
+      else 
+      begin
+         top_select = 2'b00;
+      end
 
-   top_select = 2'b00; //if no hazards just use regular output
-   bot_select = 2'b00; //if no hazards just use regular output
-
-
-   // execution hazard
-   if ((reg_write_MEM == 1'b1) && (regfile_waddr_MEM == read_reg_1)) 
-   
-   begin
-      top_select = 2'b01;
-   end
-
-   if (reg_write_MEM == 1'b1 && (regfile_waddr_MEM == read_reg_2)) 
-
-   begin
-      bot_select = 2'b01;
-   end  
-
-
-   //MEM hazard
-
-   if (reg_write_WB == 1'b1 &&! ( reg_write_MEM == 1'b1 && (regfile_waddr_MEM !== read_reg_1))  //and not statement
-       && (regfile_waddr_WB == read_reg_1)) //reg adress must also match!
-       
-   begin 
-      top_select = 2'b10;
-   end 
-
-   if (reg_write_WB == 1'b1 && !(reg_write_MEM == 1'b1 && (regfile_waddr_MEM !== read_reg_2))
-       && (regfile_waddr_WB == read_reg_2)) 
-      
-   begin 
-      bot_select = 2'b10;
-   end 
+      // Generating muxcontrol for lower forwarding mux
+      if (reg_write_MEM == 1'b1
+      && (regfile_waddr_MEM == read_reg_2)) 
+      begin
+         bot_select = 2'b10;
+      end 
+      else if (reg_write_WB == 1'b1 
+      && !reg_write_MEM == 1'b1 && (regfile_waddr_MEM !== read_reg_2))
+      && (regfile_waddr_WB == read_reg_2)) 
+      begin 
+         bot_select = 2'b01;
+      end 
+      else 
+      begin
+         bot_select = 2'b00;
+      end
       
    
 
